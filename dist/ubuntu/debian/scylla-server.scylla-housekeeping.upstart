@@ -29,7 +29,7 @@ script
   /usr/lib/scylla/scylla-housekeeping --uuid-file /etc/scylla.d/housekeeping.uuid -c /etc/scylla.d/housekeeping.cfg  -q version --mode r || true
   while [ 1 ]
   do
-    sleep 1d
     /usr/lib/scylla/scylla-housekeeping --uuid-file /etc/scylla.d/housekeeping.uuid -c /etc/scylla.d/housekeeping.cfg  -q version --mode d || true
+    sleep 1d
   done
 end script
