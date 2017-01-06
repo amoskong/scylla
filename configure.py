@@ -268,11 +268,11 @@ arg_parser.add_argument('--dpdk-target', action = 'store', dest = 'dpdk_target',
 arg_parser.add_argument('--debuginfo', action = 'store', dest = 'debuginfo', type = int, default = 1,
                         help = 'Enable(1)/disable(0)compiler debug information generation')
 arg_parser.add_argument('--static-stdc++', dest = 'staticcxx', action = 'store_true',
-			help = 'Link libgcc and libstdc++ statically')
+                        help = 'Link libgcc and libstdc++ statically')
 arg_parser.add_argument('--static-thrift', dest = 'staticthrift', action = 'store_true',
-            help = 'Link libthrift statically')
+                        help = 'Link libthrift statically')
 arg_parser.add_argument('--static-boost', dest = 'staticboost', action = 'store_true',
-            help = 'Link boost statically')
+                        help = 'Link boost statically')
 arg_parser.add_argument('--tests-debuginfo', action = 'store', dest = 'tests_debuginfo', type = int, default = 0,
                         help = 'Enable(1)/disable(0)compiler debug information generation for tests')
 arg_parser.add_argument('--python', action = 'store', dest = 'python', default = 'python3',
