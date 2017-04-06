@@ -92,6 +92,8 @@ else
         echo "Unsupported distribution"
         exit 1
     fi
+    yum clean all
+    sed -i -e 's/^mirrorlist=/#mirrorlist=/' -e 's/^#baseurl/baseurl/' /etc/yum.repos.d/epel.repo
 
     if [ "$LOCAL_PKG" = "" ]; then
         yum install -y scylla
