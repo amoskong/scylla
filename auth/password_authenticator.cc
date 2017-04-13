@@ -320,7 +320,8 @@ const auth::resource_ids& auth::password_authenticator::protected_resources() co
 
             while (i != e) {
                 if (*i == 0) {
-                    sstring tmp(i.base(), b.base());
+                    //sstring tmp(i.base(), b.base());
+                    sstring tmp(b.base(), i.base());
                     if (password.empty()) {
                         password = std::move(tmp);
                     } else if (username.empty()) {
@@ -331,7 +332,7 @@ const auth::resource_ids& auth::password_authenticator::protected_resources() co
                 }
                 ++i;
             }
-
+            logger.debug("DEBUG AUTH: u: [%s], p: [%s]" % (username, password))
             if (username.empty()) {
                 throw exceptions::authentication_exception("Authentication ID must not be null");
             }
