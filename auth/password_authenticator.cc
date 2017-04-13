@@ -312,7 +312,7 @@ const auth::resource_ids& auth::password_authenticator::protected_resources() co
                         throw (exceptions::authentication_exception) override {
             logger.debug("Decoding credentials from client token");
 
-            sstring username, password;
+            sstring username, password, size;
 
             auto b = client_response.crbegin();
             auto e = client_response.crend();
@@ -321,10 +321,13 @@ const auth::resource_ids& auth::password_authenticator::protected_resources() co
             while (i != e) {
                 if (*i == 0) {
                     sstring tmp(i.base(), b.base());
+                    //sstring tmp(b.base(), i.base());
                     if (password.empty()) {
                         password = std::move(tmp);
                     } else if (username.empty()) {
                         username = std::move(tmp);
+                    } else if (size.empty()) {
+                        size = std::move(tmp);
                     }
                     b = ++i;
                     continue;
@@ -332,11 +335,10 @@ const auth::resource_ids& auth::password_authenticator::protected_resources() co
                 ++i;
             }
 
-            if (username.empty()) {
-                throw exceptions::authentication_exception("Authentication ID must not be null");
-            }
-            if (password.empty()) {
-                throw exceptions::authentication_exception("Password must not be null");
+            logger.debug("DEBUG AUTH: u: [%s], p: [%s], s: [%s]", username, password, size);
+
+            if (size.empty()) {
+                throw exceptions::authentication_exception("Authentication ID and Password must not be null");
             }
 
             _credentials[USERNAME_KEY] = std::move(username);
