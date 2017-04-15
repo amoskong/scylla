@@ -43,6 +43,10 @@
 #include <crypt.h>
 #include <random>
 #include <chrono>
+#include <vector>
+
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include <seastar/core/reactor.hh>
 
@@ -326,25 +330,15 @@ const auth::resource_set& auth::password_authenticator::protected_resources() co
             plogger.debug("Decoding credentials from client token");
 
             sstring username, password;
+            std::vector<sstring> token_strings;
+            sstring dl("\0", 1);
 
-            auto b = client_response.crbegin();
-            auto e = client_response.crend();
-            auto i = b;
-
-            while (i != e) {
-                if (*i == 0) {
-                    sstring tmp(i.base(), b.base());
-                    if (password.empty()) {
-                        password = std::move(tmp);
-                    } else if (username.empty()) {
-                        username = std::move(tmp);
-                    }
-                    b = ++i;
-                    continue;
-                }
-                ++i;
+            boost::split(token_strings, client_response, boost::algorithm::is_any_of(dl));
+            if (token_strings.size() != 3) {
+                throw exceptions::authentication_exception("Credentials must have three components delimited by ASCII NUL");
             }
-
+            username = token_strings[1];
+            password = token_strings[2];
             if (username.empty()) {
                 throw exceptions::authentication_exception("Authentication ID must not be null");
             }
