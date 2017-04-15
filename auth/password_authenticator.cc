@@ -317,16 +317,18 @@ const auth::resource_ids& auth::password_authenticator::protected_resources() co
             auto b = client_response.crbegin();
             auto e = client_response.crend();
             auto i = b;
+            int delimited;
 
             while (i != e) {
                 if (*i == 0) {
                     sstring tmp(i.base(), b.base());
-                    if (password.empty()) {
+                    if (delimited == 0 and password.empty()) {
                         password = std::move(tmp);
-                    } else if (username.empty()) {
+                    } else if (delimited == 1 and username.empty()) {
                         username = std::move(tmp);
                     }
                     b = ++i;
+                    delimited++;
                     continue;
                 }
                 ++i;
