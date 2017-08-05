@@ -314,7 +314,7 @@ int main(int ac, char** av) {
         }
         if (help_loggers) {
             do_help_loggers();
-            engine().exit(1);
+            engine().exit(0);
             return make_ready_future<>();
         }
         print("Scylla version %s starting ...\n", scylla_version());
