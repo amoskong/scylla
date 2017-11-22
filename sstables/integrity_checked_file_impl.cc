@@ -127,7 +127,7 @@ inline open_flags adjust_flags_for_integrity_checked_file(open_flags flags) {
 }
 
 future<file>
-open_integrity_checked_file_dma(sstring name, open_flags flags, file_open_options options) {
+open_integrity_checked_file_dma(sstring name, open_flags flags, file_open_options options = {}) {
     return open_file_dma(name, adjust_flags_for_integrity_checked_file(flags), options).then([name] (file f) {
         return make_ready_future<file>(make_integrity_checked_file(std::move(name), f));
     });
