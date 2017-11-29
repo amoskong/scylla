@@ -73,7 +73,7 @@ static const class_registrator<
         auth::authenticator,
         auth::password_authenticator,
         cql3::query_processor&,
-        ::service::migration_manager&> password_auth_reg("org.apache.cassandra.auth.PasswordAuthenticator");
+        ::service::migration_manager&> password_auth_reg(meta::AUTH_PACKAGE_NAME + "PasswordAuthenticator");
 
 auth::password_authenticator::~password_authenticator()
 {}

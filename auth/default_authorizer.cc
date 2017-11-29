@@ -72,7 +72,7 @@ static const class_registrator<
         auth::authorizer,
         auth::default_authorizer,
         cql3::query_processor&,
-        ::service::migration_manager&> password_auth_reg("org.apache.cassandra.auth.CassandraAuthorizer");
+        ::service::migration_manager&> password_auth_reg(meta::AUTH_PACKAGE_NAME +"CassandraAuthorizer");
 
 auth::default_authorizer::default_authorizer(cql3::query_processor& qp, ::service::migration_manager& mm)
         : _qp(qp)

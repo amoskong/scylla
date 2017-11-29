@@ -36,6 +36,6 @@ static const class_registrator<
     authorizer,
     allow_all_authorizer,
     cql3::query_processor&,
-    ::service::migration_manager&> registration("org.apache.cassandra.auth.AllowAllAuthorizer");
+    ::service::migration_manager&> registration(meta::AUTH_PACKAGE_NAME + "AllowAllAuthorizer");
 
 }

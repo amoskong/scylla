@@ -70,7 +70,7 @@ static const class_registrator<
         role_manager,
         standard_role_manager,
         cql3::query_processor&,
-        ::service::migration_manager&> registration("org.apache.cassandra.auth.CassandraRoleManager");
+        ::service::migration_manager&> registration(meta::AUTH_PACKAGE_NAME + "CassandraRoleManager");
 
 struct record final {
     sstring name;
