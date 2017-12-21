@@ -48,10 +48,13 @@
 #include "permission.hh"
 #include "db/config.hh"
 #include "utils/class_registrator.hh"
+#include "log.hh"
 
 namespace auth {
 
 class service;
+
+static logging::logger log("transitional_authenticator");
 
 static const sstring PACKAGE_NAME("com.scylladb.auth.");
 
@@ -98,6 +101,7 @@ public:
         auto i = credentials.find(authenticator::USERNAME_KEY);
         if ((i == credentials.end() || i->second.empty()) && (!credentials.count(PASSWORD_KEY) || credentials.at(PASSWORD_KEY).empty())) {
             // return anon user
+            log.info("Required key '{}' or '{}' is missing, authentication fails, the user is logged in as anonymous", USERNAME_KEY, PASSWORD_KEY);
             return make_ready_future<::shared_ptr<authenticated_user>>(::make_shared<authenticated_user>());
         }
         return make_ready_future().then([this, &credentials] {
@@ -107,6 +111,7 @@ public:
                 std::rethrow_exception(ep);
             } catch (exceptions::authentication_exception&) {
                 // return anon user
+                log.info("Authentication fails, the user is logged in as anonymous");
                 return make_ready_future<::shared_ptr<authenticated_user>>(::make_shared<authenticated_user>());
             }
         });
