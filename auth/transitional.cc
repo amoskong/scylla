@@ -48,10 +48,13 @@
 #include "permission.hh"
 #include "db/config.hh"
 #include "utils/class_registrator.hh"
+#include "log.hh"
 
 namespace auth {
 
 class service;
+
+static logging::logger log("transitional_authenticator");
 
 static const sstring PACKAGE_NAME("com.scylladb.auth.");
 
@@ -141,7 +144,14 @@ public:
                 return _complete || _sasl->is_complete();
             }
             future<::shared_ptr<authenticated_user>> get_authenticated_user() const {
-                return _sasl->get_authenticated_user();
+                return _sasl->get_authenticated_user().handle_exception([](auto ep) {
+                    try {
+                        std::rethrow_exception(ep);
+                    } catch (exceptions::authentication_exception&) {
+                        log.debug("Authentication has failed. Logging user in anonymously");
+                        return make_ready_future<::shared_ptr<authenticated_user>>(::make_shared<authenticated_user>());
+                    }
+                });
             }
         private:
             ::shared_ptr<sasl_challenge> _sasl;
