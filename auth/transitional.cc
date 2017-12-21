@@ -130,29 +130,57 @@ public:
     }
     ::shared_ptr<sasl_challenge> new_sasl_challenge() const override {
         class sasl_wrapper : public sasl_challenge {
+            const transitional_authenticator& _self;
+
         public:
-            sasl_wrapper(::shared_ptr<sasl_challenge> sasl)
-                : _sasl(std::move(sasl))
+            sasl_wrapper(const transitional_authenticator& self) : _self(self)
             {}
             bytes evaluate_response(bytes_view client_response) override {
-                try {
-                    return _sasl->evaluate_response(client_response);
-                } catch (exceptions::authentication_exception&) {
-                    _complete = true;
-                    return {};
+                log.debug("Decoding credentials from client token");
+
+                sstring username, password;
+
+                auto b = client_response.crbegin();
+                auto e = client_response.crend();
+                auto i = b;
+
+                while (i != e) {
+                    if (*i == 0) {
+                        sstring tmp(i.base(), b.base());
+                        if (password.empty()) {
+                            password = std::move(tmp);
+                        } else if (username.empty()) {
+                            username = std::move(tmp);
+                        }
+                        b = ++i;
+                        continue;
+                    }
+                    ++i;
                 }
+
+                if (username.empty()) {
+                    throw exceptions::authentication_exception("Authentication ID must not be null");
+                }
+                if (password.empty()) {
+                    throw exceptions::authentication_exception("Password must not be null");
+                }
+
+                _credentials[USERNAME_KEY] = std::move(username);
+                _credentials[PASSWORD_KEY] = std::move(password);
+                _complete = true;
+                return {};
             }
             bool is_complete() const {
-                return _complete || _sasl->is_complete();
+                return _complete;
             }
             future<::shared_ptr<authenticated_user>> get_authenticated_user() const {
-                return _sasl->get_authenticated_user();
+                return _self.authenticate(_credentials);
             }
         private:
-            ::shared_ptr<sasl_challenge> _sasl;
+            credentials_map _credentials;
             bool _complete = false;
         };
-        return ::make_shared<sasl_wrapper>(_authenticator->new_sasl_challenge());
+        return ::make_shared<sasl_wrapper>(*this);
     }
 };
 
