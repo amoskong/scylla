@@ -98,6 +98,7 @@ public:
         return _authenticator->alterable_options();
     }
     future<::shared_ptr<authenticated_user>> authenticate(const credentials_map& credentials) const override {
+        log.info("transitional_auth authenticate()");
         auto i = credentials.find(authenticator::USERNAME_KEY);
         if ((i == credentials.end() || i->second.empty()) && (!credentials.count(PASSWORD_KEY) || credentials.at(PASSWORD_KEY).empty())) {
             // return anon user
@@ -107,6 +108,7 @@ public:
         return make_ready_future().then([this, &credentials] {
             return _authenticator->authenticate(credentials);
         }).handle_exception([](auto ep) {
+            log.info("Authentication fails, handle exception: {}", ep);
             try {
                 std::rethrow_exception(ep);
             } catch (exceptions::authentication_exception&) {
@@ -196,6 +198,7 @@ public:
     ~transitional_authorizer()
     {}
     future<> start() override {
+        log.info("transitional_auth starting");
         return _authorizer->start();
     }
     future<> stop() override {
