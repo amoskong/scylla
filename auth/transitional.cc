@@ -71,8 +71,6 @@ static const sstring& transitional_authorizer_name() {
 class transitional_authenticator : public authenticator {
     std::unique_ptr<authenticator> _authenticator;
 public:
-    static const sstring PASSWORD_AUTHENTICATOR_NAME;
-
     transitional_authenticator(cql3::query_processor& qp, ::service::migration_manager& mm)
             : transitional_authenticator(std::make_unique<password_authenticator>(qp, mm))
     {}
