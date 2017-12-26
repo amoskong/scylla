@@ -65,6 +65,18 @@ SEASTAR_TEST_CASE(test_password_authenticator_attributes) {
     }, cfg);
 }
 
+SEASTAR_TEST_CASE(test_transitional_authenticator_attributes) {
+    db::config cfg;
+    cfg.authenticator(auth::transitional_authenticator_name());
+
+    return do_with_cql_env([](cql_test_env& env) {
+        auto& a = env.local_auth_service().underlying_authenticator();
+        BOOST_REQUIRE_EQUAL(a.require_authentication(), true);
+        BOOST_REQUIRE_EQUAL(a.qualified_java_name(), auth::transitional_authenticator_name());
+        return make_ready_future();
+    }, cfg);
+}
+
 SEASTAR_TEST_CASE(test_auth_users) {
     db::config cfg;
     cfg.authenticator(auth::password_authenticator_name());
