@@ -326,18 +326,6 @@ const auth::resource_set& auth::password_authenticator::protected_resources() co
             sstring username, password;
             std::vector<sstring> items;
 
-            //read and verify credentials length
-            auto p = reinterpret_cast<const uint8_t*>(client_response.begin());
-            uint32_t len = (static_cast<uint32_t>(p[0]) << 24)
-                         | (static_cast<uint32_t>(p[1]) << 16)
-                         | (static_cast<uint32_t>(p[2]) << 8)
-                         | (static_cast<uint32_t>(p[3]));
-            client_response.remove_prefix(4);
-
-            if (len != client_response.size()) {
-                throw exceptions::authentication_exception("Fail to check length of credentials");
-            }
-
             auto b = client_response.cbegin();
             auto e = client_response.cend();
             auto i = b;

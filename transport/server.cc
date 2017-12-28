@@ -776,6 +776,8 @@ future<response_type> cql_server::connection::process_auth_response(uint16_t str
         _sasl_challenge = client_state.get_auth_service()->underlying_authenticator().new_sasl_challenge();
     }
 
+    auto n = read_int(buf);
+    check_room(buf, n);
     auto challenge = _sasl_challenge->evaluate_response(buf);
     if (_sasl_challenge->is_complete()) {
         return _sasl_challenge->get_authenticated_user().then([this, stream, client_state = std::move(client_state), challenge = std::move(challenge)](::shared_ptr<auth::authenticated_user> user) mutable {
