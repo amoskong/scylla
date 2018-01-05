@@ -66,7 +66,7 @@ struct [[gnu::packed]] cql_binary_frame_v1 {
 
     template <typename Adjuster>
     void adjust_endianness(Adjuster a) {
-        return a(length);
+        a(length);
     }
 };
 
@@ -79,7 +79,7 @@ struct [[gnu::packed]] cql_binary_frame_v3 {
 
     template <typename Adjuster>
     void adjust_endianness(Adjuster a) {
-        return a(stream, length);
+        a(stream, length);
     }
 };
 
