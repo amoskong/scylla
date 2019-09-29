@@ -455,6 +455,8 @@ arg_parser.add_argument('--enable-alloc-failure-injector', dest='alloc_failure_i
                         help='enable allocation failure injection')
 arg_parser.add_argument('--with-antlr3', dest='antlr3_exec', action='store', default=None,
                         help='path to antlr3 executable')
+arg_parser.add_argument('--with-ragel', dest='ragel_exec', action='store', default='ragel',
+        help='path to ragel executable')
 args = arg_parser.parse_args()
 
 defines = ['XXH_PRIVATE_API',
@@ -796,6 +798,26 @@ alternator = [
        'alternator/auth.cc',
 ]
 
+redis = [
+        'redis/service.cc',
+        'redis/server.cc',
+        'redis/query_processor.cc',
+        'redis/protocol_parser.rl',
+        'redis/keyspace_utils.cc',
+        'redis/options.cc',
+        'redis/stats.cc',
+        'redis/mutation_utils.cc',
+        'redis/query_utils.cc',
+        'redis/abstract_command.cc',
+        'redis/command_factory.cc',
+        'redis/commands/unknown.cc',
+        'redis/commands/ping.cc',
+        'redis/commands/set.cc',
+        'redis/commands/get.cc',
+        'redis/commands/del.cc',
+        'redis/commands/select.cc',
+        ]
+
 idls = ['idl/gossip_digest.idl.hh',
         'idl/uuid.idl.hh',
         'idl/range.idl.hh',
@@ -841,7 +863,7 @@ scylla_tests_dependencies = scylla_core + idls + scylla_tests_generic_dependenci
 ]
 
 deps = {
-    'scylla': idls + ['main.cc', 'release.cc'] + scylla_core + api + alternator,
+    'scylla': idls + ['main.cc', 'release.cc'] + scylla_core + api + alternator + redis,
 }
 
 pure_boost_tests = set([
@@ -1231,6 +1253,11 @@ if args.antlr3_exec:
 else:
     antlr3_exec = "antlr3"
 
+if args.ragel_exec:
+    ragel_exec = args.ragel_exec
+else:
+    ragel_exec = "ragel"
+
 for mode in build_modes:
     configure_zstd(outdir, mode)
 
@@ -1265,6 +1292,9 @@ with open(buildfile_tmp, 'w') as f:
             command = {ninja} -C $subdir $target
             restat = 1
             description = NINJA $out
+        rule ragel
+            command = {ragel_exec} -G2 -o $out $in
+            description = RAGEL $out
         rule run
             command = $in > $out
             description = GEN $out
@@ -1329,6 +1359,7 @@ with open(buildfile_tmp, 'w') as f:
         swaggers = {}
         serializers = {}
         thrifts = set()
+        ragels = {}
         antlr3_grammars = set()
         seastar_dep = 'build/{}/seastar/libseastar.a'.format(mode)
         for binary in build_artifacts:
@@ -1386,6 +1417,9 @@ with open(buildfile_tmp, 'w') as f:
                 elif src.endswith('.json'):
                     hh = '$builddir/' + mode + '/gen/' + src + '.hh'
                     swaggers[hh] = src
+                elif src.endswith('.rl'):
+                    hh = '$builddir/' + mode + '/gen/' + src.replace('.rl', '.hh')
+                    ragels[hh] = src
                 elif src.endswith('.thrift'):
                     thrifts.add(src)
                 elif src.endswith('.g'):
@@ -1414,6 +1448,7 @@ with open(buildfile_tmp, 'w') as f:
             gen_headers += g.headers('$builddir/{}/gen'.format(mode))
         gen_headers += list(swaggers.keys())
         gen_headers += list(serializers.keys())
+        gen_headers += list(ragels.keys())
         gen_headers_dep = ' '.join(gen_headers)
 
         for obj in compiles:
@@ -1427,6 +1462,9 @@ with open(buildfile_tmp, 'w') as f:
         for hh in serializers:
             src = serializers[hh]
             f.write('build {}: serializer {} | idl-compiler.py\n'.format(hh, src))
+        for hh in ragels:
+            src = ragels[hh]
+            f.write('build {}: ragel {}\n'.format(hh, src))
         for thrift in thrifts:
             outs = ' '.join(thrift.generated('$builddir/{}/gen'.format(mode)))
             f.write('build {}: thrift.{} {}\n'.format(outs, mode, thrift.source))

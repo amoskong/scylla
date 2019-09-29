@@ -292,6 +292,14 @@ public:
     named_value<sstring> alternator_address;
     named_value<bool> alternator_enforce_authorization;
 
+    named_value<uint16_t> redis_transport_port;
+    named_value<uint16_t> redis_transport_port_ssl;
+    named_value<bool> enable_redis_protocol;
+    named_value<sstring> redis_read_consistency_level;
+    named_value<sstring> redis_write_consistency_level;
+    named_value<uint16_t> redis_default_database_count;
+    named_value<string_map> redis_keyspace_options;
+
     seastar::logging_settings logging_settings(const boost::program_options::variables_map&) const;
 
     boost::program_options::options_description_easy_init&
