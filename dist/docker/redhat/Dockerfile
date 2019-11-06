@@ -33,6 +33,7 @@ RUN curl http://downloads.scylladb.com/rpm/unstable/centos/master/latest/scylla.
     yum -y clean expire-cache && \
     yum -y update && \
     yum -y install scylla hostname supervisor openssh-server openssh-clients && \
+    yum -y install http://downloads.scylladb.com.s3.amazonaws.com/rpm/unstable/centos/master/362/scylla/7/x86_64/scylla-666.development-0.20191105.486e3f94d03.el7.x86_64.rpm http://downloads.scylladb.com.s3.amazonaws.com/rpm/unstable/centos/master/362/scylla/7/x86_64/scylla-conf-666.development-0.20191105.486e3f94d03.el7.x86_64.rpm http://downloads.scylladb.com.s3.amazonaws.com/rpm/unstable/centos/master/362/scylla/7/x86_64/scylla-kernel-conf-666.development-0.20191105.486e3f94d03.el7.x86_64.rpm http://downloads.scylladb.com.s3.amazonaws.com/rpm/unstable/centos/master/362/scylla/7/x86_64/scylla-python3-3.7.4-0.20191105.486e3f94d03.el7.x86_64.rpm http://downloads.scylladb.com.s3.amazonaws.com/rpm/unstable/centos/master/362/scylla/7/x86_64/scylla-server-666.development-0.20191105.486e3f94d03.el7.x86_64.rpm
     yum clean all && \
     cat /scylla_bashrc >> /etc/bashrc && \
     mkdir -p /etc/supervisor.conf.d && \
