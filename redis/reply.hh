@@ -50,7 +50,7 @@ public:
         m->append_static("+PONG\r\n");
         return make_ready_future<redis_message>(m);
     }
-    static future<redis_message> err() {
+    static future<redis_message> zero() {
         auto m = make_lw_shared<scattered_message<char>> ();
         m->append_static(":0\r\n");
         return make_ready_future<redis_message>(m);
@@ -65,8 +65,8 @@ public:
         m->append_static("$-1\r\n");
         return make_ready_future<redis_message>(m);
     }
-    static future<redis_message> zero() {
-        return err();
+    static future<redis_message> err() {
+        return zero();
     }
     static future<redis_message> make_strings_result(bytes result) {
         auto m = make_lw_shared<scattered_message<char>> ();
