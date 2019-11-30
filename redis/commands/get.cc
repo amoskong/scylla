@@ -48,8 +48,7 @@ future<redis_message> get::execute(service::storage_proxy& proxy, redis::redis_o
         if (result->has_result()) {
             return redis_message::make_strings_result(std::move(result->result()));
         }
-        // FIXME: we should returns nil string if key does not exist
-        return redis_message::err();
+        return redis_message::nil();
     });
 }
 

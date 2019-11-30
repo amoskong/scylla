@@ -60,6 +60,11 @@ public:
         m->append_static(":1\r\n");
         return make_ready_future<redis_message>(m);
     }
+    static future<redis_message> nil() {
+        auto m = make_lw_shared<scattered_message<char>> ();
+        m->append_static("$-1\r\n");
+        return make_ready_future<redis_message>(m);
+    }
     static future<redis_message> zero() {
         return err();
     }
