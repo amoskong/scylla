@@ -822,6 +822,7 @@ redis = [
         'redis/commands/unknown.cc',
         'redis/commands/ping.cc',
         'redis/commands/set.cc',
+        'redis/commands/setnx.cc',
         'redis/commands/get.cc',
         'redis/commands/del.cc',
         'redis/commands/select.cc',

@@ -25,6 +25,7 @@
 #include "redis/commands/ping.hh"
 #include "redis/commands/get.hh"
 #include "redis/commands/set.hh"
+#include "redis/commands/setnx.hh"
 #include "redis/commands/del.hh"
 #include "redis/commands/select.hh"
 #include "log.hh"
@@ -41,6 +42,7 @@ shared_ptr<abstract_command> command_factory::create(service::storage_proxy& pro
         { "select",  [] (service::storage_proxy& proxy, request&& req) { return commands::select::prepare(proxy, std::move(req)); } }, 
         { "get",  [] (service::storage_proxy& proxy, request&& req) { return commands::get::prepare(proxy, std::move(req)); } }, 
         { "set",  [] (service::storage_proxy& proxy, request&& req) { return commands::set::prepare(proxy, std::move(req)); } }, 
+        { "setnx",  [] (service::storage_proxy& proxy, request&& req) { return commands::setnx::prepare(proxy, std::move(req)); } },
         { "del",  [] (service::storage_proxy& proxy, request&& req) { return commands::del::prepare(proxy, std::move(req)); } }, 
     };
     auto&& command = _commands.find(req._command);
