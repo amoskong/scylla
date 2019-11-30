@@ -28,11 +28,16 @@
 #include "redis/commands/setnx.hh"
 #include "redis/commands/del.hh"
 #include "redis/commands/select.hh"
+//#include <seastar/core/sstring.hh>
 #include "log.hh"
 
 namespace redis {
 
-static logging::logger logging("command_factory");
+static logging::logger logging("redis-cmd-factory");
+
+static sstring to_sstring(const bytes& b) {
+    return sstring(reinterpret_cast<const char*>(b.data()), b.size());
+}
 
 shared_ptr<abstract_command> command_factory::create(service::storage_proxy& proxy, request&& req)
 {
@@ -47,9 +52,12 @@ shared_ptr<abstract_command> command_factory::create(service::storage_proxy& pro
     };
     auto&& command = _commands.find(req._command);
     if (command != _commands.end()) {
+        logging.trace("execute command req._command = {}", to_sstring(req._command));
         return (command->second)(proxy, std::move(req));
     }
     auto& b = req._command;
+    const sstring cmd = sstring(reinterpret_cast<const char*>(b.data()), b.size());
+    logging.trace("2execute command req._command = {}", cmd);
     logging.error("receive unknown command = {}", sstring(reinterpret_cast<const char*>(b.data()), b.size()));
     return commands::unknown::prepare(proxy, std::move(req));
 }

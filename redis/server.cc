@@ -31,11 +31,14 @@
 #include "service/query_state.hh"
 #include "exceptions/exceptions.hh"
 #include "auth/authenticator.hh"
+#include "log.hh"
 #include <cassert>
 #include <string>
 #include "redis/request.hh"
 #include "redis/reply.hh"
 #include <unordered_map>
+
+static logging::logger slogger("redis-server");
 
 namespace redis_transport {
 
@@ -223,6 +226,7 @@ future<> redis_server::connection::process_request() {
         if (_parser.eof()) {
             return make_ready_future<>();
         }
+        slogger.trace("enter requests gate");
         ++_server._stats._requests_serving;
         _pending_requests_gate.enter();
         utils::latency_counter lc;

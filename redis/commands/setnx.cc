@@ -30,6 +30,9 @@
 #include "redis/options.hh"
 #include "redis/mutation_utils.hh"
 #include "redis/query_utils.hh"
+#include "log.hh"
+
+
 
 namespace redis {
 
