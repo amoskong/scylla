@@ -29,6 +29,7 @@
 #include "service/client_state.hh"
 #include "redis/options.hh"
 #include "redis/mutation_utils.hh"
+#include "redis/query_utils.hh"
 
 namespace redis {
 
@@ -44,9 +45,16 @@ shared_ptr<abstract_command> del::prepare(service::storage_proxy& proxy, request
 
 future<redis_message> del::execute(service::storage_proxy& proxy, redis::redis_options& options, service_permit permit)
 {
-    return redis::delete_object(proxy, options, std::move(_key), permit).then([] {
-       return redis_message::one();
+    // FIXME: del command doesn't support to delete multiple keys once
+    return redis::read_strings(proxy, options, _key, permit).then([&proxy, &options, permit, this] (auto result) {
+        if (result->has_result()) {
+            return redis::delete_object(proxy, options, std::move(_key), permit).then([] {
+                return redis_message::one();
+            });
+        }
+        return redis_message::zero();
     });
+
 }
 
 }
