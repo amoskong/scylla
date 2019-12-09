@@ -131,7 +131,7 @@ public:
     }
     
     bool eof() const {
-        return _req._state == request_state::eof;
+        return _req._state == request_state::eof or _req._command == "quit";
     }
     
     redis::request& get_request() { 

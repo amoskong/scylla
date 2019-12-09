@@ -68,6 +68,7 @@ class redis_server {
     size_t _max_request_size;
     semaphore _memory_available;
     redis::stats _stats;
+    bool _ready_close;
 private:
     uint64_t _requests_blocked_memory = 0;
     auth::service& _auth_service;

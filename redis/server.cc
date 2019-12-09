@@ -153,7 +153,7 @@ redis_server::connection::~connection() {
 future<> redis_server::connection::process()
 {
     return do_until([this] {
-        return _read_buf.eof();
+        return _read_buf.eof() or _server.ready_close;
     }, [this] {
         return with_gate(_pending_requests_gate, [this] {
             return process_request().then_wrapped([this] (auto f) {
@@ -220,7 +220,8 @@ void redis_server::connection::write_reply(redis_server::result result)
 future<> redis_server::connection::process_request() {
     _parser.init();
     return _read_buf.consume(_parser).then([this] {
-        if (_parser.eof()) {
+        if (_parser.eof() || _parse._req._command == "quit") {
+	    _server.ready_close = true;
             return make_ready_future<>();
         }
         ++_server._stats._requests_serving;
